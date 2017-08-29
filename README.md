@@ -1,6 +1,6 @@
 # ABOUT ME
 
-My name is [Annie](https://athwing.github.io) and I am second year MS Biostatistics student.  This is my github repository for BIOS 6623, and I am very excited to be taking this class.
+My name is Annie and I am second year MS Biostatistics student.  This is my repository for my work in BIOS 6623, and I am very excited to be taking this class.
 
 I edited this file first on the github website by going to my directory, clicking the pencil icon and editing the ReadMe.md file.
 
