@@ -1,9 +1,9 @@
 # ABOUT ME
 
-This is [Annie's](https://athwing.github.io) github repository for BIOS 6623. I am a second year MS biostatistics student and am excited to be taking this class.
+My name is [Annie](https://athwing.github.io) and I am second year MS Biostatistics student.  This is my github repository for BIOS 6623, and I am very excited to be taking this class.
 
-I edited this file first on the github website by going to my directory, clicking the pencil icon and editing the readme.md file.
+I edited this file first on the github website by going to my directory, clicking the pencil icon and editing the ReadMe.md file.
 
-Next I downloaded GitKraken, which I did not previously have, cloned my repository, and then went to the Repositories folder in my Home directory, and opened up the ReadMe.md file from here, I am currently editing it in Xcode, and once I am done I will push it back.
+Next I downloaded GitKraken, which I did not previously have, cloned my repository, and then went to the Repositories folder in the Home directory of my computer, opened up the ReadMe.md file to edit in XCode and then pushed it back to GitHub.
 
-I have worked with markdown in the past on the GitHub website, I like editing it on the website since you can click "Preview" and see what it looks like before you commit back.
+I have enjoyed working with markdown in the past on other repositories, although I like working with it much better on the website because I am able to preview my changes before I commit them.
