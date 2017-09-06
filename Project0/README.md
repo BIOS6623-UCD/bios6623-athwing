@@ -1,3 +1,6 @@
+## Project 0: Dental Data
+
+#### Directory Structure
 The general info on this project is: 
 1) SAS and R analysis and data management files can be 
 found in the Code folder; 
@@ -6,7 +9,7 @@ reports that were created along the way;
 3) Docs contains graphs and figures at times and
 other things like investigator questions or docs the investigator sent me.
 
-The description of the project is:
+#### Project Description
 Dental researchers were interested in a new gel treatment for gum disease.  In their study, 
 subjects were randomly assigned to one of 5 treatments: no treatment and four levels of an active 
 substance in a gel. The lowest level was a placebo (=1) and then another control group (=2), like 
