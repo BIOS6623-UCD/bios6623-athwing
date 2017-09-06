@@ -1,8 +1,3 @@
-Here is an example project readme file.  You should modify this for your project and do this for every project over the term.  This project contains the analysis and report files for project 0 for the Bios 6623 class.  
-Data are kept out of this directory.  If you are interested in working on the project and
-do not have the data, please write nichole.carlson@ucdenver.edu and I can provide a copy
-of this dataset.  It is a teaching dataset from historical data.
-
 The general info on this project is: 1) SAS and R analysis and data management files can be 
 found in the Code folder; 2) Reports contain the graphs and figures from my code and the
 reports that were created along the way; 3) Docs contains graphs and figures at times and
