@@ -3,8 +3,14 @@ library(gridExtra)
 
 dat <- read.table("~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Project3Data.csv",sep=",",header = T)
 
+# Add a time variable before you set age of onset to be very high
+dat$diff <- dat$age - dat$ageonset
+
 # Change those with no age of onset to be a very high age, so it is not NA
 dat$ageonset[is.na(dat$ageonset)] <- 200
+
+# Center the data (subtract minimum age off of everyone)
+dat$age_cent <- dat$age-min(dat$age)
 
 # Create an outcome dataset for each outcome of interest, must have >=3 measurements per subject to be included
 # Outcomes of interest: 1. logmemI 2. logmemII 3. animals 4. blockR
@@ -36,6 +42,8 @@ ind.blockR <- as.numeric(as.vector(freq.blockR[which(freq.blockR$Freq >=3),1]))
 blockR.pop <- dat[which(dat$id%in%ind.blockR),!colnames(dat)%in%c("cdr","logmemI","logmemII","animals")]
 # Plot trajectories per person for blockR
 blockR.pop_CC <- blockR.pop[!is.na(blockR.pop$blockR),]
+
+# make demind a factor
 
 # plotlI <- ggplot(data = logmemI.pop_CC, aes(x = age, y = logmemI, group = id,col = demind)) + geom_line() + theme(legend.position='none')
 # plotlII <- ggplot(data = logmemII.pop_CC, aes(x = age, y = logmemII, group = id,col = demind)) + geom_line() + theme(legend.position='none')
@@ -143,7 +151,6 @@ mean(blockR.range_NC$diff)
 
 # Table 1 stratified by demind
 
-
 # variable is x-k (age is x, k is knot(negative) or 0, set age of onset for not as something huge)
 
 ## Difficulty is finding k
@@ -159,5 +166,29 @@ mean(blockR.range_NC$diff)
 
 # Age is in partial years
 # Average age range should be 65-85 age of entry, followed for 7-8 years
+
+# How long they were followed for (time between first and last observation)
+# # of subjects
+# avg # of obs on each subject, SD
+# avg time between measurements
+# Avg characteristics of when you first saw people (avg values on 1st observation)
+
+# Adjust for SES and gender
+# Adding correlation is secondary to getting main effects model correct
+
+# Slope changing around 4 years (before diagnosis?)
+
+
+# Start fitting my models:
+
+
+
+
+
+
+
+
+
+
 
 
