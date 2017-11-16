@@ -1,16 +1,8 @@
 library(ggplot2)
 library(gridExtra)
+library(nlme)
 
 dat <- read.table("~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Project3Data.csv",sep=",",header = T)
-
-# Add a time variable before you set age of onset to be very high
-dat$diff <- dat$age - dat$ageonset
-
-# Change those with no age of onset to be a very high age, so it is not NA
-dat$ageonset[is.na(dat$ageonset)] <- 200
-
-# Center the data (subtract minimum age off of everyone)
-dat$age_cent <- dat$age-min(dat$age)
 
 # Create an outcome dataset for each outcome of interest, must have >=3 measurements per subject to be included
 # Outcomes of interest: 1. logmemI 2. logmemII 3. animals 4. blockR

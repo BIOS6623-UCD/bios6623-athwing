@@ -4,47 +4,41 @@
 #Fit change point model
 ###############################################################################################
 
-
-# Remove people without dementia (not sure about this!!)
-blockR_CP <- blockR.pop_CC[which(!is.na(blockR.pop_CC$diff)),]
-
-# Data
-id <- as.character(blockR_CP$id)
-t1 <- blockR_CP$diff
-y <- blockR_CP$blockR
-
-# Sequence of change points to consider
-cps<-seq(-15,15,1)
-
 # Create a function to search for change point
 # and fit final change point model (from Camille)
 
-cp.search_and_fit<-function(id, t1, y, cps){
-  #Place to store likelihoods from the CP search
-  ll<-data.frame(changepoint=rep(NA,length(cps)), ll=rep(NA,length(cps)))
+cp.search_and_fit <- function(y, id, cps = seq(0,7,.001), age, ageonset, demind){
   
-  #Search for the CP
-  for (i in 1:length(cps)){cp<-cps[i]
-  t2<-ifelse(t1>cp, t1-cp, 0)
-  cp.model<-lme(y~t1+t2, random=~1|id, method='ML')
-  ll[i,]<-c(cp,logLik(cp.model))
+  # Place to store likelihoods from the CP search
+  ll <-data.frame (changepoint=rep(NA,length(cps)), ll=rep(NA,length(cps)))
+  
+  # Search for the CP
+  for (i in 1:length(cps)){
+    cp <- cps[i]
+    # tau is either time after changepoint or 0 if before changepoint, should stay 0 where demind = 0
+    tau <- ifelse(demind==1 & (age>ageonset-cp), age - ageonset + cp, 0)
+    cp.model <- lme(y ~ age + demind + age*demind + tau, random=~1|id, method='ML')
+    ll[i,] <- c(cp,logLik(cp.model))
   }
   
-  #Plot the likelihood
+  # Plot the likelihood
   plot(ll$changepoint, ll$ll, type='l', xlab='Change Point (months)', ylab='Log Likelihood')
   
-  #Find the max
+  # Find the max
   cp<-ll[which(ll$ll==max(ll$ll)),'changepoint']
   print(cp)
   
-  #Fit the final model
-  t2<-ifelse(t1>cp, t1-cp, 0)
-  cp.model<-lme(y~t1+t2, random=~1|id)
+  # Fit the final model
+  tau <- ifelse(demind==1 & (age>ageonset-cp), age - ageonset + cp, 0)
+  cp.model <- lme(y ~ age + demind + age*demind + tau, random=~1|id, method='ML')
   return(list(cp=cp, model=cp.model))
 }
 
-#Run the function on the dataset
-cp.model <- cp.search_and_fit(id, t1, y, cps)
+# Run the function on the dataset
+cp.model <- cp.search_and_fit(y = blockR.pop_CC$blockR, id = blockR.pop_CC$id, age = blockR.pop_CC$age, ageonset = blockR.pop_CC$ageonset,demind = blockR.pop_CC$demind)
+
+# BlockR change point is:
+
 
 summary(cp.model$model)
 
