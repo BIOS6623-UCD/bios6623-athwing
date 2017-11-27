@@ -1,0 +1,86 @@
+---
+title: "Project 3"
+author: "Annie Thwing"
+date: "11/27/2017"
+output: pdf_document
+fontsize: 11pt
+geometry: margin=1in
+---
+
+\openup 1em
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tableone)
+library(nlme)
+
+# Read in data exactly as it is given to us
+dat <- read.table("~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Project3Data.csv",sep=",",header = T)
+
+# Individuals with enough data for outcome 3:
+freq.animals <- as.data.frame(table(dat$id[which(!is.na(dat$animals))]))
+ind.animals <- as.numeric(as.vector(freq.animals[which(freq.animals$Freq >=3),1]))
+animals.pop <- dat[which(dat$id%in%ind.animals),!colnames(dat)%in%c("cdr","logmemI","logmemII","blockR")]
+# Only keep the observations where you have an outcome
+animals.pop_CC <- animals.pop[!is.na(animals.pop$animals),]
+
+```
+
+## Introduction
+
+This project looked at memory decline over the aging process in individuals diagnosed with dementia or mild cognitive impairment (MCI), and in those individuals not diagnosed with dementia or MCI.  The goal was to determine the trajectories of memory and cognitive loss, and also determine the time point (if any) at which the memory of those eventually diagnosed with dementia or MCI began to see a decline in MCI at a rate significantly different than the expected decline due to aging.  Memory impairment was diagnosed following two consecutive Clinical Dementia Ratings that scored greater than or equal to 0.5.  While this study had several cognitive measures of interest, this report is specifically focused on the observed category fluency for animals measurements for each subject.  Subjects in this study were healthy, community dwelling seniors with no record of MCI or dementia, who were followed for at least seven years.  Only those subjects who had at least three reported category for fluency for animals scores qualified to be included in the analysis.  We seek to determine the rate of memory decline in healthy individuals, the rate of memory decline in individuals diagnosed with dementia, and if there is a period of time before diagnosis of MCI or dementia in which the rate of memory decline changes for those diagnosed with MCI or dementia as opposed to those not diagnosed.
+
+## Methods
+
+Methods utilized to answer the above questions included: cleaning the dataset, determining a model to fit which could take into account the correlation between repeated measurements on an individual, finding a "change point", or specific time point, at which the rate of memory decline changed in those individuals diagnosed with dementia, and then determing a measure of variation around the estimates of decline in the model and the change point.  The method to find the change point, and variability around our change point and estimates was adapted from Hall et. al.'s paper *A change point model for estimating the onset of cognitive decline in preclinical Alzheimer’s disease*.[1]
+
+Once this data set was cleaned to solely include those subjects for which we had more than three measurements of category fluency for animals, it was used to fit a linear mixed model.  This model was chosen as it was able to account for correlation between repeated measurements on each subject by allowing for a random intercept per subject in the model, which allowed for each subject to have a different starting value.
+
+This linear mixed model was then fit to adjust for socioeconomic status (SES) and gender, along with age, an indicator of dementia status, an interaction between age and dementia status, and a parameter tau.  The interaction between age and dementia was included to identify whether the decrease in memory function due to aging was significantly different between those with and without dementia.  The parameter tau was included to allow for a change point in our model; the point at which those diagnosed with dementia started to see a sharper decline in memory function than those not diagnosed in the study.
+
+Tau was set to be the maximum of 0 and age + cp - ageonset, where age was current age, ageonset was the age of diagnosis for those with MCI or dementia and cp was the change point.  Tau was calculated this way so that it was only "turned on" after age + change point was greater than the age of onset.  This allowed for it to be 0 before the change point, and have another slope after the change point.  Tau was set to be this maximum only in those cases with a dementia diagnosis.
+
+The change point was determined by fitting this model for a variety of change points, calculating the log likelihoods for each potential change point and then choosing the change point with the corresponding model that had the highest log likelihood. This can be seen in Figure 1, where the change point found indicates the highest corresponding log likelihood.
+
+Variability around the coefficients in this model was calculated using the conditional variance formula in order to adjust for the loss of precision due to the estimation of the change point.  This was modeled after Hall et. al.'s suggestion, and the standard error of each $\hat\beta$ was solved for by first solving for the variance of $\hat\beta$ using $Var(\hat\beta|\tau) = E[Var(\hat\beta|\tau)] + Var[E(\hat\beta|\tau)]$.  This was solved for and then the $\sqrt{Var(\hat\beta)}$ was taken to get a standard error.
+
+Variability around the change point was found by calculating a 95% confidence interval for the change point, using the $\chi^2$ distribution of the log likelihood.
+
+## Results
+
+![Table One](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/table_one.png)
+There were 216 individuals in this study, 187 of which were able to be used in our analysis.  The criteria for inclusion of subjects was that each subject had at least three measurements of our outcome of interest (category fluency for animals).  Of the 187 subjects that met this criteria, 82 were male and 105 were female, they had an average socio-economic status (SES) score of 49 with a standard deviation of 12, an average age of 80 with a standard deviation of 9 and an average category fluency for animal score of 17 with a standard deviation of 5.  These baseline scores were calculated from the first instance in which each individual had an observed measurement for category fluency for animals, for only those individuals which met the criteria for this study.  Stratifying our analysis group by diagnosis of MCI or dementia shows that while 119 subjects remained cognitively healthy during this study, 68 were diagnosed with MCI or dementia.  Additionally, those that were diagnosed entered the study at an average age of 85 with a standard deviation of 6, and with an initial category fluency for animal score of 16 with a standard deviation of 5.  Those that were not diagnosed with dementia had their first observed measurements at a significantly (p<0.0001) younger age (77 with a standard deviation of 9) and scored significantly higher (p <0.0001) on their initial category fluency for animals test (18 with a standard deviation of 5).  Additionally, we note that subjects were followed for 8.8 years on average, with an average of 7.8 non-missing observations (although this ranges from 3-14) per person.
+
+It was found that the average rate of memory decline among subjects who never developed MCI or dementia as measured by category fluency for animals was .17765 (95% CI: -0.2271, -0.1282) for every 1 unit increase in age and while adjusting for SES, gender and dementia status.  Additionally we can see that gender is not a significant predictor (p = 0.34) of category fluency for animals score, as males only got scores different by .53772 (95% CI: -1.63, 0.55) than the scores of their female counterparts.  SES may be considered mildly significant (p = 0.0955), as for every 1 unit increase in SES, category fluency for animals score increases by 0.03931 (95% CI: -0.0067, 0.085) when also adjusted for age, gender and dementia status.  Finally, dementia by itself was not a significant predictor of category fluency for animals score (p = 0.96), as those that were diagnosed with dementia saw an average decrease in memory score of .618 (95% CI: -25.16, 23.93) as compared to those individuals who were never diagnosed with dementia.
+
+For the subjects that did develop dementia, a change point of 3.91651 years, or 3 years and 11 months (95% CI: 3.08321, 4.99980) was determined to be the time before dementia diagnosis at which the yet-to-be-diagnosed individual started to see a change in memory decline.  Additionally, tau was found to be an extremely significant (p <0.00001) predictor of category fluency for animals score as those diagnosed with dementia saw an average memory decline of -0.9067 (95% CI: -1.1497,-0.6637) for every 1 greater than those not diagnosed with dementia, beginning once they were 3 years and 11 months before their diagnosis.
+
+Individuals eventually diagnosed with dementia were found to have an average rate of memory decline, as measured by category fluency for animals, of .17866 for every 1 unit increase in age, up until 3 years and 11 months before diagnosis.  Individuals diagnosed with dementia or MCI were found to have an average rate of memory decline of 1.085361 for every 1 unit increase in age, after 3 years and 11 months before their dementia diagnosis.
+
+## Conclusions
+
+In conclusion, we can see that significant predictors of memory decline measured by category fluency for animals are age, and being at least 3.9 years within a diagnosis of dementia or mild cognitive impairment.
+
+We found the average rate of memory decline for a healthy individual to be .17765 for every 1 unit increase in age, and that the rate of memory decline in individuals diagnosed with dementia is not significantly different than healthy individuals before the change point, as they had an average rate of memory decline of .17866 for every 1 unit increase in age.  Once an individual is within 3.9 years of their dementia diagnosis however, we know that there is a significant difference in memory decline between healthy individuals and those individuals eventually diagnosed with dementia.  After this period of time, the rate of cognitive loss in those diagnosed with dementia is significantly different than memory loss due to aging.
+
+Some limitations of this analysis were that we only analyzed one of four different measures of cognitive health in an individual.  We cannot say whether or not these results would hold true across the other measurements, logical memory I, logical memory II and blockR score.  Additional work that could be done would be to do this analysis for the three other scores to draw conclusions on each score and to see if any broad, or overall conclusions could be drawn from this study.
+
+## Reproducible Research
+
+https://github.com/BIOS6623-UCD/bios6623-athwing/tree/master/Project3
+
+## Tables
+
+![Results](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/Results.png)
+
+![likelihood graph](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/likelihood_cp_graph.png)
+
+![Predicted values](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/fitted_graph.png)
+
+![Predicted values, time to diagnosis](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/fitted_graph_ttd.png)
+
+![Intial trajectory spaghetti plot](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/trajectory_graph.png)
+![Intitial Trajectory Time to Diagnosis](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/trajectory_ttd.png)
+
