@@ -64,14 +64,6 @@ mean(yrs_followed_CC$min)
 mean(yrs_followed_CC$max)
 mean(yrs_followed_CC$diff)
 
-# Avg time between measurements:
-
-
-# It might be nice to also know how many years after baseline, dementia is being diagnosed 
-# to give an idea of how much data is available prior to the change point
-
-
-
 # Spaghetti plot of the trajectory of the outcome, color coded by dementia group, ***make x-axis time to diagnosis***
 plot_animals <- ggplot(data = animals.pop_CC, aes(x = age, y = animals, group = id,col = as.factor(demind))) + geom_line()
 plot_animals

@@ -1,6 +1,21 @@
-# Function to search for change point (adapted from Camille)
+library(ggplot2)
+library(tableone)
+library(nlme)
 
-cp.search_and_fit <- function(y, dataSet, cps = seq(0,10,.1)){
+# Read in data exactly as it is given to us
+dat <- read.table("~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Project3Data.csv",sep=",",header = T)
+
+# Individual must have >=3 measurements for animal outcome to be included
+
+# Individuals with enough data for outcome 3:
+freq.animals <- as.data.frame(table(dat$id[which(!is.na(dat$animals))]))
+ind.animals <- as.numeric(as.vector(freq.animals[which(freq.animals$Freq >=3),1]))
+animals.pop <- dat[which(dat$id%in%ind.animals),!colnames(dat)%in%c("cdr","logmemI","logmemII","blockR")]
+# Only keep the observations where you have an outcome
+animals.pop_CC <- animals.pop[!is.na(animals.pop$animals),]
+
+# Function to search for change point (adapted from Camille)
+cp.search_and_fit <- function(y, dataSet, cps = seq(0,6,.08333)){
   id <- dataSet$id
   age <- dataSet$age
   ageonset <- dataSet$ageonset
@@ -27,13 +42,15 @@ cp.search_and_fit <- function(y, dataSet, cps = seq(0,10,.1)){
     se.table[i,] <- summary(cp.model)$tTable[,2]
   }
   
-  # Plot the likelihood
-  plot(ll$changepoint, ll$ll, type='l', xlab='Change Point (months)', ylab='Log Likelihood')
-  
   # Find the max
   cp<-ll[which(ll$ll==max(ll$ll)),'changepoint']
   print(cp)
   
+  # Plot the likelihood
+  plot(ll$changepoint, ll$ll, type='l', xlab='Change Point (months)', ylab='Log Likelihood',
+       main = paste("Change point = ",cp,sep=""))
+  abline(v = cp, untf = FALSE, col= "red")
+
   # Compute the adjusted standard errors for each estimate
   # Place to store values for first component of Var for each coefficient
   var1.adjusted <- data.frame(intercept=rep(NA,length(cps)),age=rep(NA,length(cps)),demind=rep(NA,length(cps)),tau=rep(NA,length(cps)),
@@ -57,30 +74,46 @@ cp.search_and_fit <- function(y, dataSet, cps = seq(0,10,.1)){
   v2 <- colSums(var2.adjusted)/sumlogLik
   adj.se <- sqrt(v1+v2)
   
+  # Find the confidence interval around the changepoint
+  maxll <- max(ll$ll)
+  range <- which(ll$ll>=(max(ll$ll)-(3.84/2)))
+  lower_bound <- ll$changepoint[min(range)]
+  upper_bound <- ll$changepoint[max(range)]
+  
   # Fit the final model
   tau <- ifelse(demind==1 & (age>ageonset-cp), age - ageonset + cp, 0)
   cp.model <- lme(y ~ age + demind + age*demind + tau + gender + SES, random=~1|id, method='ML')
-  return(list(cp=cp, model=cp.model,ll.table=ll,adjusted.se = adj.se))
+  return(list(cp=cp,cp.ci=c(lower_bound,upper_bound), model=cp.model,ll.table=ll,adjusted.se = adj.se))
 }
 
 # Run the function on the dataset
 cp.model.animals <- cp.search_and_fit(y = animals.pop_CC$animals, dataSet = animals.pop_CC)
 
+# Calculate the t-statistic: beta/se(be)
+beta.est <- summary(cp.model.animals$model)$tTable[,1]
+stand.err <- cp.model.animals$adjusted.se
+t.val <- beta.est/stand.err
 
+# Slope of dementia before change point
+# Figure out if age is sig(with dementia)(before change): age+demind+ageXdemind
+slope.before <- beta.est["age"]+beta.est["age:demind"]
 
+# Slope of dementia after change point
+# Figure out if age is sig(with dementia)(after change): age+demind+tau+ageXdemind
+slope.after <- beta.est["age"]+beta.est["age:demind"]+beta.est["tau"]
 
-# Clinically: What's happening with people's memory measures as they age?
-# Two time periods: 
-# If you're about to get diagnosed with MCI is there acceleration as compared to the normal aging process?
-# How long before you get diagnosed do changes happen that are noticible as compared to the aging process?
-# Looking at different information for each outcome.
+# Confidence Intervals
+ci.low <- beta.est - 1.96*(stand.err)
+ci.high <- beta.est + 1.96*(stand.err)
 
-# Age is in partial years
-# Average age range should be 65-85 age of entry, followed for 7-8 years
+# Plot
+animals.pop_CC$predicted <- as.data.frame(cp.model.animals$model$fitted)$id
+ggplot(data = animals.pop_CC, aes(x=age, y = predicted, group = id, col = factor(demind))) +  geom_line()
 
-# Adjust for SES and gender
-# Adding correlation is secondary to getting main effects model correct
-
+# Time to diagnosis
+ggplot(data = animals.pop_CC, aes(x=age-ageonset, y = predicted, group = id, col = factor(demind))) +  geom_line() + 
+  labs(x = "Time to diagnosis")
+ 
 
 
 
