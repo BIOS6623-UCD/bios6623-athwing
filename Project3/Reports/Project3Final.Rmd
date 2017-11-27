@@ -1,0 +1,49 @@
+---
+title: "Project 3: Determining the trajectory of memory decline in individuals with and without mild cognitive impairment"
+author: "Annie Thwing"
+date: "11/27/2017"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Questions of Interest:
+
+- What is the rate of memory decline based on these measures over the aging process in healthy individuals?
+- What is the rate of memory decline based on these measures over the aging process in those diagnosed with MCI/dementia during the study?
+- Is there a period of time before the diagnosis of MCI/dementia in which the rate of the memory decline changes (or accelerates)?
+
+## Initial Trajectories
+
+![Initial Trajectory Time to Diagnosis](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/trajectory_graph.png){ width=60% }
+![Initial Trajectory Time to Diagnosis](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/trajectory_ttd.png){ width=40% }
+
+## Approach
+
+1. Make sure data is cleaned: remove individuals with less than three measurements of category fluency for animals
+2. Fit a linear mixed model, account for correlation of measurements within a person by allowing for a random intercept, adjust for age, gender, socioeconomic status, dementia status, and age*dementia interaction and tau
+3. Find a "change point", time point at which the rate of memory decline changed in those individuals diagnosed with dementia as opposed to those without dementia
+4. Determine a measure of variation around the estimates of decline in the model and the change point
+
+## Results
+![Table One](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/table_one.png)
+
+![Results](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/Results.png)
+
+## Predicted Value and Change Point
+![likelihood graph](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/likelihood_cp_graph.png ){ width=55% }![Predicted values, time to diagnosis](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/fitted_graph_ttd.png){ width=70% }
+
+## Conclusions
+- The slope for those with dementia was not significantly different from those without dementia before the change point
+- The slope for those with dementia was significantly different from those without dementia after the change point
+![Predicted values](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/fitted_graph.png){ width=70% }
+  - Future considerations: consider other 3 outcomes, look for trends
+
+
+
+
+
+
