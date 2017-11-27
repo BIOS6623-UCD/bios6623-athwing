@@ -71,6 +71,11 @@ Some limitations of this analysis were that we only analyzed one of four differe
 
 https://github.com/BIOS6623-UCD/bios6623-athwing/tree/master/Project3
 
+## References
+
+Code to find the change point was adapted from Camille Moore's boostrap_example_6623.R file from the course Canvas website.
+Methods to find the change point, model our data and find variability around estimates and the change point were adapted from the Hall et. al. paper in the Docs folder under this project.
+
 ## Tables
 
 ![Results](~/Documents/CU Denver/Fall_2017/Advanced_Data_Analysis/Project_3/Reports/Results.png)
