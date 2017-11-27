@@ -3,11 +3,12 @@
 #### Directory Structure
 The general info on this project is: 
 1) SAS and R analysis and data management files can be 
-found in the Code folder; 
+found in the Code folder;
+  Descriptive_statistics.R has preliminary descriptive statistics.
+  Code.R has the code to find the change point and run the model.
 2) Reports contain the graphs and figures from my code and the
-reports that were created along the way; 
-3) Docs contains graphs and figures at times and
-other things like investigator questions or docs the investigator sent me. 
+reports that were created along the way.
+3) Docs contains the Hall et. al. paper reference in the paper.
 
 #### Question of Interest
 Our general questions of interest are:
